@@ -36,7 +36,7 @@ def parseCommand(data, args, argNumber):
     else:
       raise Exception("Broken, no command or subcommand found under " + name)
       return 0
-  raise Exception( "incorrect argument " + args[argNumber] + " does not match " + name)
+  #raise Exception( "Incorrect argument " + args[argNumber] + " does not match " + name)
   return 0
 def getCurrentName(data):
   return data["name"]
