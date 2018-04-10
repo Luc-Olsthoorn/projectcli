@@ -1,8 +1,0 @@
-projectcli/__init__.py
-projectcli/cli.py
-projectcli.egg-info/PKG-INFO
-projectcli.egg-info/SOURCES.txt
-projectcli.egg-info/dependency_links.txt
-projectcli.egg-info/entry_points.txt
-projectcli.egg-info/not-zip-safe
-projectcli.egg-info/top_level.txt
