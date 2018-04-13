@@ -3,6 +3,18 @@ import json
 from json import dumps
 from subprocess import call
 
+
+class textFormatter:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    INFO = '\u21b3  '
+
 import os 
 # for file io 
 import pickle 
@@ -17,26 +29,32 @@ with open (filepath, 'rb') as fp:
     commandsList = pickle.load(fp)
   except EOFError:
     commandsList = []
-print(commandsList)
 def parseCommand(data, args, argNumber):
   #breadth first traversal 
   name = getCurrentName(data)
   if isCorrectArgument(name, args[argNumber]):
+    print(textFormatter.INFO + "found main command " + name)
     if isFinalCommand(data):
       if isCorrectNumArgs(data, args, argNumber):
         return data["command"]
       else:
-        raise Exception("Wrong number of args")
+        print (textFormatter.FAIL + "Wrong number of argumnets for "+name + textFormatter.ENDC)
         return 0
     elif hasSubCommands(data): 
-      for subCommand in data["subCommands"]:
-        result = parseCommand(subCommand, args, argNumber+1)
-        if result != 0:
-          return result
-    else:
-      raise Exception("Broken, no command or subcommand found under " + name)
+      print(textFormatter.INFO + "looking through subcommands")
+      if len(args) <= argNumber:
+        for subCommand in data["subCommands"]:
+          result = parseCommand(subCommand, args, argNumber+1)
+          if result != 0:
+            return result
+      else:
+        print(textFormatter.FAIL+"No subcommands provided for command " + name + textFormatter.ENDC)
+        return 0
+      print(textFormatter.FAIL+"Command: " + args[argNumber+1] + " is not a valid subCommand "+ textFormatter.ENDC)
       return 0
-  #raise Exception( "Incorrect argument " + args[argNumber] + " does not match " + name)
+    else:
+      print(textFormatter.FAIL + "Broken, no command or subcommand found under " + name +textFormatter.ENDC)
+      return 0
   return 0
 def getCurrentName(data):
   return data["name"]
@@ -70,6 +88,8 @@ def add(args):
     raise Exception("Not enough arguments")
   else:
     for path in args[2:]:
+      if path[0]!='/':
+        path = os.getcwd()+"/"+path
       if path in commandsList:
         raise Exception("Path: " + path + " is already in the commands list")
       elif checkValidStructure(path):
@@ -87,7 +107,7 @@ def listAllCommands():
   return total
 def main():
   #TODO verbose arguments
-  verbose = True
+  verbose = False
   if len(sys.argv) == 1:
     print("Not enough arguments")
   elif(sys.argv[1] == "add"):
@@ -103,14 +123,13 @@ def main():
   else:
     result = 0
     for path in commandsList:
+        #print(path)
         data = json.load(open(path))
         try:
           result = parseCommand(data, sys.argv, 1)
-          print (result)
           if result != 0:
             os.system(result)
         except Exception as e:
-          print("Couldn't find command " + sys.argv[1])
           if verbose:
             print (e)
 
